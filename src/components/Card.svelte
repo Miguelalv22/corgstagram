@@ -5,6 +5,8 @@
 
     import { blur } from "svelte/transition";
 
+    import { likeCount } from "../store/store.mjs";
+
     export let username;
     export let location;
     export let photo;
@@ -13,9 +15,20 @@
     export let avatar;
 
     let isModal = false;
+    let like = false;
+    let bookmark = false;
 
     function handleClick() {
         isModal = !isModal;
+    }
+
+    function handleLike() {
+        like = !like;
+        if (like) {
+            likeCount.update((n) => n + 1);
+        } else {
+            likeCount.update((n) => n - 1);
+        }
     }
 </script>
 
@@ -41,13 +54,17 @@
             </div>
         </div>
         <div class="Card-photo">
-            <figure>
+            <figure on:dblclick={handleLike}>
                 <img src={photo} alt={username} />
             </figure>
         </div>
         <div class="Card-icons">
             <div class="Card-icons-first">
-                <i class="fa-solid fa-heart"></i>
+                <button on:click={handleLike} aria-label="Boton de like"
+                    ><i class="fa-solid fa-heart" class:active-like={like}
+                    ></i></button
+                >
+
                 <button
                     on:click={handleClick}
                     aria-label="Compartir en Facebook"
@@ -55,7 +72,14 @@
                 >
             </div>
             <div class="Card-icons-second">
-                <i class="fa-solid fa-bookmark"></i>
+                <button
+                    on:click={() => (bookmark = !bookmark)}
+                    aria-label="Guardar post"
+                    ><i
+                        class="fa-solid fa-bookmark"
+                        class:active-bookmark={bookmark}
+                    ></i></button
+                >
             </div>
         </div>
         <div class="Card-description">
@@ -133,7 +157,7 @@
     .Card-icons i:last-child {
         margin: 0;
     }
-    .Card-icons-first button {
+    .Card-icons button {
         background-color: white;
         border: none;
         color: rgba(38, 38, 38, 0.7);
@@ -149,7 +173,7 @@
     .Card-description span {
         font-size: 14px;
     }
-    /* .active-like {
+    .active-like {
         color: #bc1888;
         animation: bounce linear 0.8s;
         animation-iteration-count: 1;
@@ -157,7 +181,7 @@
     }
     .active-bookmark {
         color: #f09433;
-    } */
+    }
 
     @keyframes bounce {
         0% {
